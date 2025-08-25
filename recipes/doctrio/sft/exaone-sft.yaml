@@ -1,0 +1,71 @@
+# Config for 8 nodes with GBS 128
+# Model arguments
+model_name_or_path: LGAI-EXAONE/EXAONE-3.5-7.8B-Instruct
+torch_dtype: bfloat16
+attn_implementation: flash_attention_2
+trust_remote_code: true
+
+# Data training arguments
+dataset_mixture:
+  datasets:
+    - id: eungizoa/fsec-dacon
+      config: SFT-OEQA
+      split: 국가법령정보센터
+      weight: 1.0
+    - id: eungizoa/fsec-dacon
+      config: SFT-OEQA
+      split: 법령외
+      weight: 1.0
+    - id: eungizoa/fsec-dacon
+      config: SFT-MCQA
+      split: 국가법령정보센터
+      weight: 1.0
+    - id: eungizoa/fsec-dacon
+      config: SFT-MCQA
+      split: 법령외
+      weight: 1.0
+  seed: 0
+  test_split_size: 0.1
+
+
+# SFT trainer config
+completion_only_loss: true # assistant_only_loss -> compatible issue: use_liger_kernel and assistant_only_loss
+dataset_num_proc: 8
+dataset_train_split: "train"
+dataset_test_split: "test"
+bf16: true
+ddp_timeout: 18000 # avoid nccl errors when tokenizing large datasets
+do_eval: true
+eval_strategy: 'steps'
+eval_steps: 100
+per_device_eval_batch_size: 1
+eval_accumulation_steps: 16
+gradient_accumulation_steps: 4
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: true
+output_dir: /gpfs/home/eungizoa/models/doctrio/exaone3.5-7.5b-mcqa-oeqa
+learning_rate: 2.0e-05
+log_level: info
+logging_steps: 5
+logging_strategy: steps
+lr_scheduler_type: cosine
+packing: true
+packing_strategy: bfd 
+max_grad_norm: 0.2
+max_length: 2048
+max_steps: -1
+num_train_epochs: 3
+overwrite_output_dir: true
+per_device_train_batch_size: 1
+push_to_hub: false
+report_to:
+- wandb
+save_strategy: best
+save_total_limit: 1
+load_best_model_at_end: true
+seed: 42
+use_liger_kernel: true
+warmup_ratio: 0.03
+run_name: doctrio-sft-exaone-mcqa-oeqa
+average_tokens_across_devices: true
