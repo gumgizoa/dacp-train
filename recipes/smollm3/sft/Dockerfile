@@ -40,9 +40,6 @@ RUN chmod -R 777 $BASE_DIR
 WORKDIR $BASE_DIR
 RUN pip install --no-cache-dir -e .
 
-# Install latest trl
-RUN pip install git+https://github.com/huggingface/trl.git
-
 # Install flash attention 2
 RUN pip install "flash-attn==2.7.4.post1" --no-build-isolation
 
