@@ -90,27 +90,45 @@ def main(script_args, training_args, model_args):
     ################
     # Load datasets
     ################
-    def format_messages(example):
-        is_mcqa = example["options"] is not None
-        if is_mcqa:
-            system_message = MCQA_SYSTEM_PROMPT
-            options_str = "\n".join([f"{i+1}. {option}" for i, option in enumerate(example["options"])])
-            user_message = MCQA_INSTRUCTION_TEMPLATE.format(query=example["query"], options=options_str)
-            if (cot_trace := example["cot_trace"].strip()) != "":
-                assistant_message = MCQA_ANSWER_COT_TEMPLATE.format(trace=cot_trace, answer=example["answer"])
+    def format_messages(example: dict):
+        
+        # Public instruction-following training dataset generally has `messages` field
+        if example.get("messages"):
+            return example
+        # Custom datasets require messages formatting
+        else:            
+            is_mcqa = example.get("options", None) is not None
+            if is_mcqa:
+                system_message = MCQA_SYSTEM_PROMPT
+                options_str = "\n".join([f"{i+1}. {option}" for i, option in enumerate(example["options"])])
+                user_message = MCQA_INSTRUCTION_TEMPLATE.format(query=example["query"], options=options_str)
+                if (cot_trace := example["cot_trace"].strip()) != "":
+                    assistant_message = MCQA_ANSWER_COT_TEMPLATE.format(trace=cot_trace, answer=example["answer"])
+                else:
+                    assistant_message = MCQA_ANSWER_TEMPLATE.format(answer=example["answer"])
             else:
-                assistant_message = MCQA_ANSWER_TEMPLATE.format(answer=example["answer"])
-        else:
-            system_message = OEQA_SYSTEM_PROMPT
-            user_message = OEQA_INSTRUCTION_TEMPLATE.format(query=example["question"])
-            assistant_message = OEQA_ANSWER_TEMPLATE.format(answer=example["answer"])
-            if (cot_trace := example["cot_trace"].strip()) != "":
-                assistant_message = OEQA_ANSWER_COT_TEMPLATE.format(trace=cot_trace, answer=example["answer"])
-            else:
+                system_message = OEQA_SYSTEM_PROMPT
+                user_message = OEQA_INSTRUCTION_TEMPLATE.format(query=example["question"])
                 assistant_message = OEQA_ANSWER_TEMPLATE.format(answer=example["answer"])
-                
-        example["prompt"] =[{"role": "system", "content": system_message}, {"role": "user", "content": user_message}]
-        example["completion"] = [{"role": "assistant", "content": assistant_message}]
+                if (cot_trace := example["cot_trace"].strip()) != "":
+                    assistant_message = OEQA_ANSWER_COT_TEMPLATE.format(trace=cot_trace, answer=example["answer"])
+                else:
+                    assistant_message = OEQA_ANSWER_TEMPLATE.format(answer=example["answer"])
+            
+            # # completion-only loss     
+            # example["prompt"] =[{"role": "system", "content": system_message}, {"role": "user", "content": user_message}]
+            # example["completion"] = [{"role": "assistant", "content": assistant_message}]
+            
+            # # assistant-only loss
+            example["messages"] = [
+                {"role": "system", "content": system_message}, {"role": "user", "content": user_message},
+                {"role": "assistant", "content": assistant_message}
+            ]
+            
+            # Format chat_template_kwargs
+            chat_template_kwargs = example.get("chat_template_kwargs") or {}
+            chat_template_kwargs.update({"enable_thinking": True})
+            example["chat_template_kwargs"] = chat_template_kwargs # it will be feed into the `apply_chat_template` function
         return example
     
     dataset = get_dataset(script_args)
