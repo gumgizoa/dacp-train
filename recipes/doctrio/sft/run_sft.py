@@ -101,7 +101,7 @@ def main(script_args, training_args, model_args):
             if is_mcqa:
                 system_message = MCQA_SYSTEM_PROMPT
                 options_str = "\n".join([f"{i+1}. {option}" for i, option in enumerate(example["options"])])
-                user_message = MCQA_INSTRUCTION_TEMPLATE.format(query=example["query"], options=options_str)
+                user_message = MCQA_INSTRUCTION_TEMPLATE.format(query=example["question"], options=options_str)
                 if (cot_trace := example["cot_trace"].strip()) != "":
                     assistant_message = MCQA_ANSWER_COT_TEMPLATE.format(trace=cot_trace, answer=example["answer"])
                 else:

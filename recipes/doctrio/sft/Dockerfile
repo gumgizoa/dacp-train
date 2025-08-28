@@ -41,7 +41,7 @@ WORKDIR $BASE_DIR
 RUN pip install --no-cache-dir -e .
 
 # Install flash attention 2
-RUN pip install "flash-attn==2.7.4.post1" --no-build-isolation
+RUN pip install "flash-attn>=2.7.4.post1" --no-build-isolation
 
 # Install the latest version of trl - for assistant mask
 RUN pip install git+https://github.com/huggingface/trl.git

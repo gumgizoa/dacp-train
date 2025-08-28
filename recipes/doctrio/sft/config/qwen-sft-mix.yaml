@@ -10,40 +10,40 @@ dataset_mixture:
     - id: eungizoa/fsec-dacon-250826
       config: SFT-OEQA
       split: 국가법령정보센터
-      weight: 1.0
+      weight: 0.8
     - id: eungizoa/fsec-dacon-250826
       config: SFT-OEQA
       split: 법령외
-      weight: 1.0
+      weight: 0.45
+    - id: eungizoa/fsec-dacon-250826
+      config: SFT-MCQA
+      split: 국가법령정보센터
+      weight: 0.45
     - id: eungizoa/fsec-dacon-250826
       config: SFT-MCQA
       split: 법령외
-      weight: 1.0
-    - id: eungizoa/fsec-dacon-250826
-      config: SFT-MCQA
-      split: 법령외
-      weight: 1.0
+      weight: 0.27
     - id: HuggingFaceTB/smoltalk2
       config: SFT
       split: tulu_3_sft_personas_instruction_following_no_think
       columns:
         - messages
         - chat_template_kwargs
-      weight: 0.16 # 5,000
+      weight: 0.15 # 1500
     - id: HuggingFaceTB/smoltalk2
       config: SFT
       split: smoltalk_everyday_convs_reasoning_Qwen3_32B_think
       columns:
         - messages
         - chat_template_kwargs
-      weight: 1.0 # 2,000
+      weight: 0.75 # 1500
     - id: eungizoa/smoltalk2-filtered
       config: SFT
       split: multi_turn_reasoning_if_think
       columns:
         - messages
         - chat_template_kwargs
-      weight: 0.6 # 3000
+      weight: 0.3 # 1500
   seed: 0
   test_split_size: 0.1
 
@@ -150,14 +150,14 @@ bf16: true
 ddp_timeout: 18000 # avoid nccl errors when tokenizing large datasets
 do_eval: true
 eval_strategy: 'steps'
-eval_steps: 100
+eval_steps: 50
 per_device_eval_batch_size: 1
 eval_accumulation_steps: 16
 gradient_accumulation_steps: 4
 gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: true
-output_dir: /gpfs/home/eungizoa/models/doctrio/qwen3-14b-oeqa-250827
+output_dir: /gpfs/home/eungizoa/models/doctrio/qwen3-14b-mcqa-oeqa-250828
 learning_rate: 2.0e-05
 log_level: info
 logging_steps: 5
@@ -173,12 +173,12 @@ overwrite_output_dir: true
 per_device_train_batch_size: 2
 push_to_hub: false
 report_to:
-- none
+- wandb
 save_strategy: best
-save_total_limit: 1
+save_total_limit: 3
 load_best_model_at_end: true
 seed: 42
 use_liger_kernel: true
 warmup_ratio: 0.03
-run_name: doctrio-sft-oeqa-250827
+run_name: doctrio-sft-mcqa-oeqa-250828
 average_tokens_across_devices: true
