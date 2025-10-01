@@ -30,7 +30,6 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
 # install pytorch
 RUN pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cu122
-RUN pip install datatrove[io] numba
 
 # Copy hydra-fineval project directory
 COPY ./ $BASE_DIR
@@ -51,10 +50,13 @@ RUN pip install --no-build-isolation git+https://github.com/fanshiqing/grouped_g
 # Install nanotron
 RUN mkdir -p /workspace
 RUN cd /workspace && \
-    git clone https://github.com/huggingface/nanotron.git && \
+    git clone --branch smollm3 https://github.com/huggingface/nanotron.git && \
     cd /workspace/nanotron && \
     pip install --upgrade pip && \
     pip install -e .
+
+# Install datatrove version used in smollm3 training 
+RUN pip install git+https://github.com/huggingface/datatrove.git@nouamane/avoid-s3 
 
 # Default CMD
 CMD ["tail", "-f", "/dev/null"]

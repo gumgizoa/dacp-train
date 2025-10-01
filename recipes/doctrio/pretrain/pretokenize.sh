@@ -1,0 +1,2 @@
+HF_HOME=/gpfs/home/exaone/.cache/huggingface/ HF_TOKEN=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 python3 nanotron/tools/preprocess_data.py --tokenizer-name-or-path meta-llama/Llama-3.2-1B --output-folder /gpfs/home/eungizoa/data/kfmai/fin
+eweb-2-kor_Hang-10-thousands --n-tasks 16 jsonl --dataset /gpfs/home/eungizoa/data/kfmai/fineweb-2-kor_Hang-10-thousands.jsonl --column text
